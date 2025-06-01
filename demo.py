@@ -4,6 +4,7 @@ import pandas as pd
 import time
 from datetime import datetime, timedelta
 from collections import deque
+import plotly
 import plotly.graph_objects as go
 import random
 import string
