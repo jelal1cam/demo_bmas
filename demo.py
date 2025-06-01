@@ -386,8 +386,8 @@ if st.session_state.page == "Synthetic_User_Data_Model":
     st.write("Adjust parameters and scaling factors to see their effect on the probability over time.")
     
     st.subheader("Probability Model")
-    st.latex(r"h_i(t) = S_i \cdot \beta_0 + \sum_m \alpha_m e^{-\gamma (t - t_{i,m})}")
-    st.latex(r"H_i(t) = S_i \cdot \beta_0 \cdot t + \sum_m \frac{\alpha_m}{\gamma} \left( 1 - e^{-\gamma (t - t_{i,m})} \right)")
+    st.latex(r"h_i(t) = S_i \cdot \beta_0 + \sum_m \alpha_m e^{-\gamma (t - t_{i,m})}\cdot \mathbb{I}(t \ge t_{i,m})")
+    st.latex(r"H_i(t) = S_i \cdot \beta_0 \cdot t + \sum_m \frac{\alpha_m}{\gamma} \left( 1 - e^{-\gamma (t - t_{i,m})} \right) \cdot \mathbb{I}(t \ge t_{i,m})")
     st.latex(r"F_i(t) = 1 - e^{-H_i(t)}")
     st.latex(r"S_i = S_{\text{gender}} \cdot S_{\text{age}} \cdot S_{\text{diet}} \cdot S_{\text{activity}} \cdot S_{\text{condition}} \cdot S_{\text{medication}}")
     st.latex(r"S_{\text{age}} = 1 - 0.5 \cdot \tanh(k \cdot (\text{age} - 50))")
