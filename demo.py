@@ -89,7 +89,7 @@ if "demo_subpage" not in st.session_state:
 if "selected_patient" not in st.session_state:
     st.session_state.selected_patient = None
 if "card_color" not in st.session_state:
-    st.session_state.card_color = "rgba(230, 230, 230, 0.75)"  # Updated to lighter grey with 75% transparency
+    st.session_state.card_color = "rgba(230, 230, 230, 0.75)"
 if "last_final_alert" not in st.session_state:
     st.session_state.last_final_alert = {}
 if "scroll_position" not in st.session_state:
@@ -242,12 +242,12 @@ def assign_bowel_sound(prob):
 
 def get_card_color(patient_name, patient_data_dict):
     if patient_name not in patient_data_dict or patient_data_dict[patient_name].empty:
-        return "rgba(230, 230, 230, 0.75)"  # Updated to lighter grey with 75% transparency
+        return "rgba(230, 230, 230, 0.75)"
     latest_alert = patient_data_dict[patient_name][patient_data_dict[patient_name]["Alert Level"] != "Processing..."]["Alert Level"]
     if not latest_alert.empty:
-        return ALERT_COLORS.get(latest_alert.iloc[-1], "rgba(230, 230, 230, 0.75)")  # Updated fallback
+        return ALERT_COLORS.get(latest_alert.iloc[-1], "rgba(230, 230, 230, 0.75)")
     alert_level = st.session_state.last_final_alert.get(patient_name)
-    return ALERT_COLORS.get(alert_level, "rgba(230, 230, 230, 0.75)")  # Updated fallback
+    return ALERT_COLORS.get(alert_level, "rgba(230, 230, 230, 0.75)")
 
 def hours_to_clock_time(hours, base_time=0.0):
     total_hours = (base_time + hours) % 24
@@ -345,7 +345,7 @@ def create_adjustable_cdf_plot(beta, alpha, gamma, meal_times, gender, age, gend
 # Streamlit app
 st.title("Bowel Movement Alert System Demo")
 
-# Custom CSS (Updated .summary-card to support transparency)
+# Custom CSS
 st.markdown("""
     <style>
     .stApp { max-width: 1400px; margin: 0 auto; }
@@ -354,7 +354,7 @@ st.markdown("""
     .patient-card h3 { margin: 0; font-size: 18px; }
     .patient-card p { margin: 3px 0; font-size: 14px; }
     .tag { background-color: white; border: 1px solid #d3d3d3; border-radius: 5px; padding: 2px 6px; margin: 2px; display: inline-block; font-size: 12px; }
-    .summary-card { border: 2px solid rgba(211, 211, 211, 0.5); border-radius: 10px; padding: 10px; margin: 5px 0; background-color: rgba(255, 255, 255, 0.9); transition: background-color 0.3s ease; } /* Added transition and base background */
+    .summary-card { border: 2px solid rgba(211, 211, 211, 0.5); border-radius: 10px; padding: 10px; margin: 5px 0; background-color: rgba(255, 255, 255, 0.9); transition: background-color 0.3s ease; }
     .summary-card p { margin: 3px 0; font-size: 16px; }
     .content-container { width: 100%; max-width: 100%; }
     .custom-table { width: 100%; max-width: 100%; border-collapse: collapse; overflow-x: auto; display: block; box-sizing: border-box; }
@@ -392,6 +392,7 @@ if st.session_state.page == "Synthetic_User_Data_Model":
     st.latex(r"S_i = S_{\text{gender}} \cdot S_{\text{age}} \cdot S_{\text{diet}} \cdot S_{\text{activity}} \cdot S_{\text{condition}} \cdot S_{\text{medication}}")
     st.latex(r"S_{\text{age}} = 1 - 0.5 \cdot \tanh(k \cdot (\text{age} - 50))")
     
+    # Input sections moved here, before the plot
     st.subheader("Example Patient Attributes")
     col1, col2 = st.columns(2)
     with col1:
@@ -468,6 +469,8 @@ if st.session_state.page == "Synthetic_User_Data_Model":
     st.markdown('</div>', unsafe_allow_html=True)
     meal_times = sorted(st.session_state.meal_times)
     
+    # Plot moved here, after equations and inputs
+    st.subheader("Cumulative Distribution Function (CDF)")
     try:
         st.plotly_chart(
             create_adjustable_cdf_plot(
@@ -586,7 +589,7 @@ elif st.session_state.page == "demo":
                         st.session_state.patient_data[patient_name]["Alert Level"] = new_alerts
                         if new_alerts:
                             st.session_state.last_final_alert[patient_name] = new_alerts[-1]
-                            st.session_state.card_color = ALERT_COLORS.get(new_alerts[-1], "rgba(230, 230, 230, 0.75)")  # Updated to lighter grey
+                            st.session_state.card_color = ALERT_COLORS.get(new_alerts[-1], "rgba(230, 230, 230, 0.75)")
                 st.success("Alerts reprocessed for all patients!")
                 st.session_state.scroll_position = 0
                 st.rerun()
@@ -713,7 +716,7 @@ elif st.session_state.page == "demo":
                 if col.button("Select", key=f"select_{patient_name}", use_container_width=True):
                     st.session_state.selected_patient = patient_name
                     st.session_state.demo_subpage = "simulation"
-                    st.session_state.card_color = "rgba(230, 230, 230, 0.75)"  # Updated to lighter grey
+                    st.session_state.card_color = "rgba(230, 230, 230, 0.75)"
                     st.rerun()
     
     elif st.session_state.demo_subpage == "simulation":
@@ -924,7 +927,7 @@ elif st.session_state.page == "demo":
                         st.session_state.patient_data[st.session_state.selected_patient].iloc[0, st.session_state.patient_data[st.session_state.selected_patient].columns.get_loc("Probability Output")] = round(cdf, 4)
                         st.session_state.patient_data[st.session_state.selected_patient].iloc[0, st.session_state.patient_data[st.session_state.selected_patient].columns.get_loc("Alert Level")] = alert_level
                         st.session_state.last_final_alert[st.session_state.selected_patient] = alert_level
-                        st.session_state.card_color = ALERT_COLORS.get(alert_level, "rgba(230, 230, 230, 0.75)")  # Updated to lighter grey
+                        st.session_state.card_color = ALERT_COLORS.get(alert_level, "rgba(230, 230, 230, 0.75)")
                         
                         st.session_state.plot_counter += 1
                         update_demo_content(
@@ -946,7 +949,7 @@ elif st.session_state.page == "demo":
                         "Alert Level"
                     ])
                     st.session_state.consecutive_probs[st.session_state.selected_patient].clear()
-                    st.session_state.card_color = "rgba(230, 230, 230, 0.75)"  # Updated to lighter grey
+                    st.session_state.card_color = "rgba(230, 230, 230, 0.75)"
                     st.session_state.last_final_alert[st.session_state.selected_patient] = None
                     update_demo_content(None, st.session_state.patient_data[st.session_state.selected_patient], demo_active=False, plot_key="reset_plot")
                     st.success(f"Patient data cleared!")
