@@ -392,41 +392,78 @@ if st.session_state.page == "Synthetic_User_Data_Model":
     st.latex(r"S_i = S_{\text{gender}} \cdot S_{\text{age}} \cdot S_{\text{diet}} \cdot S_{\text{activity}} \cdot S_{\text{condition}} \cdot S_{\text{medication}}")
     st.latex(r"S_{\text{age}} = 1 - 0.5 \cdot \tanh(k \cdot (\text{age} - 50))")
     
-    # Input sections moved here, before the plot
+    # Plot (positioned here, before patient attributes)
+    st.subheader("Cumulative Distribution Function (CDF)")
+    # Use session state or defaults to avoid undefined variables
+    beta = st.session_state.get('beta', DEFAULT_BETA)
+    alpha = st.session_state.get('alpha', DEFAULT_ALPHA)
+    gamma = st.session_state.get('gamma', DEFAULT_GAMMA)
+    gender = st.session_state.get('param_gender', "Male")
+    age = st.session_state.get('age', 50)
+    meal_times = st.session_state.get('meal_times', DEFAULT_MEAL_TIMES)
+    gender_scale_male = st.session_state.get('gender_scale_male', GENDER_SCALE["Male"])
+    gender_scale_female = st.session_state.get('gender_scale_female', GENDER_SCALE["Female"])
+    gender_scale_other = st.session_state.get('gender_scale_other', GENDER_SCALE["Other"])
+    age_scale_steepness = st.session_state.get('age_scale_steepness', AGE_SCALE_STEEPNESS)
+    diet_scale_veg = st.session_state.get('diet_scale_veg', DIET_SCALE["Vegetarian"])
+    diet_scale_nonveg = st.session_state.get('diet_scale_nonveg', DIET_SCALE["Non-Vegetarian"])
+    activity_scale_sedentary = st.session_state.get('activity_scale_sedentary', ACTIVITY_SCALE["Sedentary"])
+    activity_scale_intermediate = st.session_state.get('activity_scale_intermediate', ACTIVITY_SCALE["Intermediate"])
+    activity_scale_active = st.session_state.get('activity_scale_active', ACTIVITY_SCALE["Active"])
+    condition_medication_scale_reduce = st.session_state.get('condition_medication_scale_reduce', CONDITION_MEDICATION_SCALE["Reduce"])
+    condition_medication_scale_increase = st.session_state.get('condition_medication_scale_increase', CONDITION_MEDICATION_SCALE["Increase"])
+    condition_medication_scale_nochange = st.session_state.get('condition_medication_scale_nochange', CONDITION_MEDICATION_SCALE["No change"])
+    
+    try:
+        st.plotly_chart(
+            create_adjustable_cdf_plot(
+                beta, alpha, gamma, meal_times,
+                gender, age,
+                gender_scale_male, gender_scale_female, gender_scale_other,
+                age_scale_steepness,
+                diet_scale_veg, diet_scale_nonveg,
+                activity_scale_sedentary, activity_scale_intermediate, activity_scale_active,
+                condition_medication_scale_reduce, condition_medication_scale_increase, condition_medication_scale_nochange
+            ),
+            use_container_width=True
+        )
+    except Exception as e:
+        st.error(f"Error generating plot: {str(e)}")
+    
+    # Input sections (moved after plot)
     st.subheader("Example Patient Attributes")
     col1, col2 = st.columns(2)
     with col1:
         gender = st.selectbox(r"Gender", ["Male", "Female", "Other"], key="param_gender")
     with col2:
-        age = st.slider(r"Age", 20, 80, 50, step=1)
-    
+        age = st.slider(r"Age", 20, 80, 50, step=1, key="age")
     st.write(f"The example patient is a {age}-year-old {gender}, non-vegetarian, with intermediate activity, no change in prior conditions, and no change in medication.")
     
     st.subheader("Model Parameters")
     col1, col2, col3 = st.columns(3)
     with col1:
-        beta = st.slider(r"$\beta_0$: Baseline Hazard Rate", 0.01, 1.0, DEFAULT_BETA, step=0.01)
+        beta = st.slider(r"$\beta_0$: Baseline Hazard Rate", 0.01, 1.0, DEFAULT_BETA, step=0.01, key="beta")
     with col2:
-        alpha = st.slider(r"$\alpha_m$: Meal Effect Magnitude", 0.01, 2.0, DEFAULT_ALPHA, step=0.01)
+        alpha = st.slider(r"$\alpha_m$: Meal Effect Magnitude", 0.01, 2.0, DEFAULT_ALPHA, step=0.01, key="alpha")
     with col3:
-        gamma = st.slider(r"$\gamma$: Decay Rate", 0.1, 1.0, DEFAULT_GAMMA, step=0.1)
+        gamma = st.slider(r"$\gamma$: Decay Rate", 0.1, 1.0, DEFAULT_GAMMA, step=0.1, key="gamma")
     
     st.subheader("Scaling Factors")
     col1, col2 = st.columns(2)
     with col1:
-        gender_scale_male = st.slider(r"$S_{\text{gender, male}}$", 0.5, 1.5, GENDER_SCALE["Male"], step=0.01)
-        gender_scale_female = st.slider(r"$S_{\text{gender, female}}$", 0.5, 1.5, GENDER_SCALE["Female"], step=0.01)
-        gender_scale_other = st.slider(r"$S_{\text{gender, other}}$", 0.5, 1.5, GENDER_SCALE["Other"], step=0.01)
-        age_scale_steepness = st.slider(r"$k$: Age Scale Steepness", 0.01, 1.0, AGE_SCALE_STEEPNESS, step=0.01)
-        diet_scale_veg = st.slider(r"$S_{\text{diet, veg}}$", 0.5, 1.5, DIET_SCALE["Vegetarian"], step=0.01)
-        diet_scale_nonveg = st.slider(r"$S_{\text{diet, nonveg}}$", 0.5, 1.5, DIET_SCALE["Non-Vegetarian"], step=0.01)
+        gender_scale_male = st.slider(r"$S_{\text{gender, male}}$", 0.5, 1.5, GENDER_SCALE["Male"], step=0.01, key="gender_scale_male")
+        gender_scale_female = st.slider(r"$S_{\text{gender, female}}$", 0.5, 1.5, GENDER_SCALE["Female"], step=0.01, key="gender_scale_female")
+        gender_scale_other = st.slider(r"$S_{\text{gender, other}}$", 0.5, 1.5, GENDER_SCALE["Other"], step=0.01, key="gender_scale_other")
+        age_scale_steepness = st.slider(r"$k$: Age Scale Steepness", 0.01, 1.0, AGE_SCALE_STEEPNESS, step=0.01, key="age_scale_steepness")
+        diet_scale_veg = st.slider(r"$S_{\text{diet, veg}}$", 0.5, 1.5, DIET_SCALE["Vegetarian"], step=0.01, key="diet_scale_veg")
+        diet_scale_nonveg = st.slider(r"$S_{\text{diet, nonveg}}$", 0.5, 1.5, DIET_SCALE["Non-Vegetarian"], step=0.01, key="diet_scale_nonveg")
     with col2:
-        activity_scale_sedentary = st.slider(r"$S_{\text{activity, sedentary}}$", 0.5, 1.5, ACTIVITY_SCALE["Sedentary"], step=0.01)
-        activity_scale_intermediate = st.slider(r"$S_{\text{activity, intermediate}}$", 0.5, 1.5, ACTIVITY_SCALE["Intermediate"], step=0.01)
-        activity_scale_active = st.slider(r"$S_{\text{activity, active}}$", 0.5, 1.5, ACTIVITY_SCALE["Active"], step=0.01)
-        condition_medication_scale_reduce = st.slider(r"$S_{\text{condition/medication, reduce}}$", 0.5, 1.5, CONDITION_MEDICATION_SCALE["Reduce"], step=0.01)
-        condition_medication_scale_increase = st.slider(r"$S_{\text{condition/medication, increase}}$", 0.5, 1.5, CONDITION_MEDICATION_SCALE["Increase"], step=0.01)
-        condition_medication_scale_nochange = st.slider(r"$S_{\text{condition/medication, no change}}$", 0.5, 1.5, CONDITION_MEDICATION_SCALE["No change"], step=0.01)
+        activity_scale_sedentary = st.slider(r"$S_{\text{activity, sedentary}}$", 0.5, 1.5, ACTIVITY_SCALE["Sedentary"], step=0.01, key="activity_scale_sedentary")
+        activity_scale_intermediate = st.slider(r"$S_{\text{activity, intermediate}}$", 0.5, 1.5, ACTIVITY_SCALE["Intermediate"], step=0.01, key="activity_scale_intermediate")
+        activity_scale_active = st.slider(r"$S_{\text{activity, active}}$", 0.5, 1.5, ACTIVITY_SCALE["Active"], step=0.01, key="activity_scale_active")
+        condition_medication_scale_reduce = st.slider(r"$S_{\text{condition/medication, reduce}}$", 0.5, 1.5, CONDITION_MEDICATION_SCALE["Reduce"], step=0.01, key="condition_medication_scale_reduce")
+        condition_medication_scale_increase = st.slider(r"$S_{\text{condition/medication, increase}}$", 0.5, 1.5, CONDITION_MEDICATION_SCALE["Increase"], step=0.01, key="condition_medication_scale_increase")
+        condition_medication_scale_nochange = st.slider(r"$S_{\text{condition/medication, no change}}$", 0.5, 1.5, CONDITION_MEDICATION_SCALE["No change"], step=0.01, key="condition_medication_scale_nochange")
     
     st.markdown('<div class="compact-section">', unsafe_allow_html=True)
     st.subheader(r"Meal Times $t_{i,m}$")
@@ -468,24 +505,6 @@ if st.session_state.page == "Synthetic_User_Data_Model":
     
     st.markdown('</div>', unsafe_allow_html=True)
     meal_times = sorted(st.session_state.meal_times)
-    
-    # Plot moved here, after equations and inputs
-    st.subheader("Cumulative Distribution Function (CDF)")
-    try:
-        st.plotly_chart(
-            create_adjustable_cdf_plot(
-                beta, alpha, gamma, meal_times,
-                gender, age,
-                gender_scale_male, gender_scale_female, gender_scale_other,
-                age_scale_steepness,
-                diet_scale_veg, diet_scale_nonveg,
-                activity_scale_sedentary, activity_scale_intermediate, activity_scale_active,
-                condition_medication_scale_reduce, condition_medication_scale_increase, condition_medication_scale_nochange
-            ),
-            use_container_width=True
-        )
-    except Exception as e:
-        st.error(f"Error generating plot: {str(e)}")
 
 # Page: Demo
 elif st.session_state.page == "demo":
